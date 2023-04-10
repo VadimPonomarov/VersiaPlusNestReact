@@ -1,0 +1,162 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @unique @default(autoincrement())
+  email     String   @unique
+  name      String
+  password  String
+  activated Boolean  @default(false)
+  roles     Role[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Role {
+  id        Int      @id @unique @default(autoincrement())
+  name      RoleEnum
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  userId    Int
+
+  @@map("roles")
+}
+
+model Token {
+  id        Int      @id @unique @default(autoincrement())
+  token     String   @unique
+  type      JwtEnum
+  createdAt DateTime @default(now())
+
+  @@map("tokens")
+}
+
+model Truck {
+  id        Int      @id @unique @default(autoincrement())
+  watch     Boolean  @default(true)
+  code      String?
+  name      String   @unique
+  stop      String?
+  tracing   String?
+  lat       String?
+  lng       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean? @default(false)
+  order     order?   @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  orderId   Int?
+
+  @@map("trucks")
+}
+
+model Consumer {
+  id                Int             @id @unique @default(autoincrement())
+  nick              String          @unique
+  profile           ConsumerProfile @relation(fields: [consumerProfileId], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  consumerProfileId Int
+  createdAt         DateTime?       @default(now())
+  updatedAt         DateTime?       @updatedAt
+  deleted           Boolean?        @default(false)
+
+  @@map("consumers")
+}
+
+model ConsumerProfile {
+  id            Int        @id @unique @default(autoincrement())
+  inn           String?
+  name          String?
+  email         String?
+  telegram      String?
+  addr_register String?
+  addr_postal   String?
+  contacts      Contact[]
+  Consumer      Consumer[]
+  createdAt     DateTime?  @default(now())
+  updatedAt     DateTime?  @updatedAt
+  deleted       Boolean?   @default(false)
+
+  @@map("consumer_profiles")
+}
+
+model Contact {
+  id                Int              @id @unique @default(autoincrement())
+  label             String
+  tel               String?
+  email             String?
+  viber             String?
+  telegram          String?
+  info              String?
+  ConsumerProfile   ConsumerProfile? @relation(fields: [consumerProfileId], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  consumerProfileId Int?
+  deleted           Boolean?         @default(false)
+
+  @@map("contacts")
+}
+
+model Nomenclature {
+  id                 Int              @id @unique @default(autoincrement())
+  type               NomenclatureType @relation(fields: [nomenclatureTypeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  name               String
+  nomenclatureTypeId Int
+
+  @@map("nomenclature")
+}
+
+model NomenclatureType {
+  id           Int            @id @unique @default(autoincrement())
+  name         String
+  Nomenclature Nomenclature[]
+
+  @@map("nomenclature_types")
+}
+
+model order {
+  id        Int         @id @unique @default(autoincrement())
+  order     Json
+  status    StatusOrder
+  executors Truck[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  deleted   Boolean?    @default(false)
+
+  @@map("orders")
+}
+
+model tariff {
+  id     Int    @id @unique @default(autoincrement())
+  from   Int
+  upto   Int
+  tariff Float?
+  value  Float?
+
+  @@map("tariffs")
+}
+
+enum RoleEnum {
+  USER
+  ADMIN
+}
+
+enum JwtEnum {
+  ACCESS
+  REFRESH
+  ACTIVATE
+}
+
+enum StatusOrder {
+  CREATED
+  ACTIVE
+  MODIFIED
+  PROCESSED
+  CLOSED
+  ARCHIVED
+}

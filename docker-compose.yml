@@ -1,0 +1,43 @@
+version: "3.7"
+
+services:
+  app:
+    build:
+      context: ./backend/.
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+    volumes:
+      - /app/node_modules
+      - ./backend:/app
+    command: >
+      sh -c  "npm run prisma:migrate:init && npm run prisma:seed && npm run start:dev"
+
+  db:
+    image: mysql:8.0
+    restart: on-failure
+    env_file:
+      - .env
+    volumes:
+      - ./mysql:/var/lib/mysql
+
+
+  client:
+    build:
+      context: ./frontend/.
+    env_file:
+      - .env
+    restart: always
+    depends_on:
+      - app
+    ports:
+      - "3000:3000"
+    volumes:
+      - /app/node_modules
+      - ./frontend:/app
+    command: >
+      sh -c  "npm run fix && npm run start"

@@ -57,10 +57,7 @@ const authSlice = createSlice({
             state.isAuth = action.payload;
         },
         setToken(state, action: PayloadAction<IToken[]>) {
-            action.payload.map(token => {
-                return localStorage
-                    .setItem(token.type, token.token);
-            })
+            localStorage.setItem('tokenPair', JSON.stringify(action.payload));
         }
 
     },

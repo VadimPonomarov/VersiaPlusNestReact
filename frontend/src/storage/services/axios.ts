@@ -11,10 +11,14 @@ const _axios = axios.create({
 });
 
 export const _accessToken = () => {
-    return localStorage.getItem(TokenTypeEnum.ACCESS);
+    return JSON.parse(localStorage.getItem('tokenPair')) ?
+        JSON.parse(localStorage.getItem('tokenPair'))[0]['token'] :
+        ''
 }
 export const _refreshToken = () => {
-    return localStorage.getItem(TokenTypeEnum.REFRESH);
+    return JSON.parse(localStorage.getItem('tokenPair')) ?
+        JSON.parse(localStorage.getItem('tokenPair'))[1]['token'] :
+        ''
 }
 
 _axios.interceptors.request.use((config) => {
@@ -33,17 +37,14 @@ _axios.interceptors.response.use((config) => {
     if (error.response.status !== 403) throw new Error(error);
     const originalReq = error.config;
     try {
-        _axiosService.getRefreshToken().then(res => {
-            res.data.map(token => {
-                return localStorage
-                    .setItem(token.type, token.token);
-            })
-        })
+        _axiosService.getRefreshToken()
+            .then(res => localStorage.setItem('tokenPair', JSON.stringify(res.data.result)))
         return _axios.request(originalReq);
     } catch (e) {
-        console.log(e.message)
+        alert(e.message)
     }
 });
+
 
 export const _axiosService = {
     postLogin: (body: ILoginInputs) => _axios.post('/auth/login', body),

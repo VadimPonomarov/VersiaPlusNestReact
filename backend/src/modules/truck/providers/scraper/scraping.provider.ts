@@ -1,10 +1,11 @@
-import {CreateTruckDto, TruckNamesListDto} from '../../dto';
+import {CreateTruckDto, ParsingEntity, TruckNamesListDto} from '../../dto';
 import {PrismaService} from 'src/core/prisma.service';
 import {Injectable} from "@nestjs/common";
 import {Cron, CronExpression} from "@nestjs/schedule";
 import {Browser, BrowserContext, Page} from "playwright";
 import config from '../../../../config/configuration';
 import {InjectBrowser, InjectContext} from "nestjs-playwright";
+import {isNotEmpty, notEquals} from "class-validator";
 
 @Injectable()
 export class ScrapingProvider {
@@ -91,6 +92,8 @@ export class ScrapingProvider {
 
     @Cron(CronExpression.EVERY_30_MINUTES)
     async updateTruckCoordinates(): Promise<void> {
+        const isParsingOn: ParsingEntity = await this.prismaService.parsing.findFirst();
+        if (!isParsingOn.parsing) return;
         const page = await this.getTools();
         const trucks = await this.getTruckListAllLocal();
         const arr = [];

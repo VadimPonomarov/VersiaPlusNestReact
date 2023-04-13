@@ -2,11 +2,8 @@ import * as React from 'react';
 import {memo} from 'react';
 
 import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
-import Typography from '@mui/material/Typography';
-
 
 import {TruckList} from '..';
 

@@ -26,7 +26,7 @@ const _Login = () => {
     };
 
     useEffect(() => {
-        if (!!isAuth) navigate('/');
+        if (!!isAuth && !!JSON.parse(localStorage.getItem('tokenPair'))) navigate('/');
     }, [isAuth, navigate])
 
     return (

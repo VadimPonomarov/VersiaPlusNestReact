@@ -1,4 +1,8 @@
-import {IInitialState} from "./interfaces";
+import {IInitialState, ITruckParserState} from "./interfaces";
+export const ITruckParserInitialState: ITruckParserState = {
+    id: null,
+    parser: false
+}
 
 export const initialState: IInitialState = {
     trucks: [],
@@ -7,5 +11,6 @@ export const initialState: IInitialState = {
     busy: [],
     loading: false,
     error: null,
-    refresh: false
+    refresh: false,
+    truckParserState: ITruckParserInitialState
 }

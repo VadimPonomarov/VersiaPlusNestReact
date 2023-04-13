@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Parsing {
+  id      Int     @id @unique @default(autoincrement())
+  parsing Boolean @default(true)
+}
+
 model User {
   id        Int      @id @unique @default(autoincrement())
   email     String   @unique

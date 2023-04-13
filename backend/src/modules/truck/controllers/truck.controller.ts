@@ -3,7 +3,7 @@ import {
     Controller,
     Delete,
     Get,
-    HttpStatus,
+    HttpStatus, Patch,
     Res,
     UseGuards,
 } from '@nestjs/common';
@@ -42,6 +42,28 @@ export class TruckController {
         try {
             await this.truckService
                 .deleteMany(trucks);
+            res.status(HttpStatus.OK).send(ResEnum.SUCCESS)
+        } catch (e) {
+            res.status(HttpStatus.NOT_ACCEPTABLE).send(e.message)
+        }
+    }
+
+    @Get('parse')
+    async getParserToggleState(@Res() res: Response): Promise<void> {
+        try {
+            const result = await this.truckService
+                .getParserToggleState();
+            res.status(HttpStatus.OK).send({message: ResEnum.SUCCESS, result})
+        } catch (e) {
+            res.status(HttpStatus.NOT_ACCEPTABLE).send(e.message)
+        }
+    }
+
+    @Patch('toggle')
+    async patchParserToggle(@Res() res: Response): Promise<void> {
+        try {
+            await this.truckService
+                .toggleParsing();
             res.status(HttpStatus.OK).send(ResEnum.SUCCESS)
         } catch (e) {
             res.status(HttpStatus.NOT_ACCEPTABLE).send(e.message)

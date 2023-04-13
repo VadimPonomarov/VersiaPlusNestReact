@@ -1,6 +1,6 @@
 import {Injectable} from '@nestjs/common';
 import {PrismaService} from '../../../../core/prisma.service';
-import {TruckEntity, TruckNamesListDto} from '../../dto';
+import {ParsingEntity, TruckEntity, TruckNamesListDto} from '../../dto';
 import {ScrapingProvider} from '../../providers';
 
 @Injectable()
@@ -15,16 +15,17 @@ export class TruckService {
         try {
             return await this.scrapingProvider.getTruckListAllLocal();
         } catch (e) {
-            console.log(e)
-            throw new Error(e);
+            console.log(e.message);
+            throw new Error(e.message);
         }
     }
-    async getTruckListEntities(): Promise<TruckEntity[]>{
+
+    async getTruckListEntities(): Promise<TruckEntity[]> {
         try {
             return await this.prismaService.truck.findMany();
         } catch (e) {
-            console.log(e.message)
-            throw new Error(e);
+            console.log(e.message);
+            throw new Error(e.message);
         }
     }
 
@@ -38,8 +39,8 @@ export class TruckService {
                     skipDuplicates: true,
                 });
         } catch (e) {
-            console.log(e.message)
-            throw new Error(e);
+            console.log(e.message);
+            throw new Error(e.message);
         }
     }
 
@@ -54,8 +55,28 @@ export class TruckService {
                     });
             }
         } catch (e) {
-            console.log(e.message)
-            throw new Error(e);
+            console.log(e.message);
+            throw new Error(e.message);
+        }
+    }
+
+    async toggleParsing(): Promise<void> {
+        try {
+            const {parsing}: ParsingEntity = await this.prismaService.parsing.findFirst();
+            await this.prismaService.parsing.updateMany({data: {parsing: !parsing}})
+        } catch (e) {
+            console.log(e.message);
+            throw new Error(e.message);
+        }
+    }
+
+    async getParserToggleState(): Promise<ParsingEntity> {
+        try {
+            const result = await this.prismaService.parsing.findFirst();
+            return result;
+        } catch (e) {
+            console.log(e.message);
+            throw new Error(e.message);
         }
     }
 }

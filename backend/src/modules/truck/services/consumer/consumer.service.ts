@@ -10,27 +10,48 @@ export class ConsumerService {
 
     async getAll(): Promise<any> {
         try {
-            return await this.prismaService.consumer.findMany({include: {profile: {include: {contacts: true}}}});
+            return await this.prismaService.consumer
+                .findMany({
+                    where: {
+                        deleted: false
+                    },
+                    include: {
+                        profile: {
+                            include: {
+                                contacts: true
+                            }
+                        }
+                    }
+                });
         } catch (e) {
             console.log('getAll', e.message)
-            throw new Error(e)
+            throw new Error(e.message)
         }
     }
 
     async getOneById(id: number): Promise<any> {
         try {
-            return await this.prismaService.consumer.findUnique({where: {id}, include: {profile: true}});
+            return await this.prismaService.consumer
+                .findFirst({
+                    where: {
+                        id,
+                        deleted: false
+                    },
+                    include: {
+                        profile: true
+                    }
+                });
         } catch (e) {
             console.log('getOneById', e.message)
-            throw new Error(e)
+            throw new Error(e.message)
         }
     }
 
     async createConsumer(data: CreateConsumerDto): Promise<void> {
         try {
-            console.log(data);
             const isExist =
-                await this.prismaService.consumer.findFirst({where: {nick: data.nick}});
+                await this.prismaService.consumer
+                    .findFirst({where: {nick: data.nick}});
             if (isExist)
                 throw new Error(ResEnum.FAILURE + `Consumer with the same Nick: ${data.nick} already exist`)
             await this.prismaService.consumer.create({
@@ -45,33 +66,49 @@ export class ConsumerService {
             });
         } catch (e) {
             console.log('createConsumer', e.message)
-            throw new Error(e)
+            throw new Error(e.message)
         }
     }
 
     async updateConsumer(id: number, data: CreateConsumerDto): Promise<void> {
         try {
             const isExist =
-                await this.prismaService.consumer.findFirst({where: {id}});
+                await this.prismaService.consumer
+                    .findFirst({
+                        where: {id}
+                    });
             if (!isExist)
                 throw new Error(ResEnum.FAILURE + `There is no consumer with Id: ${id}`)
-            await this.prismaService.consumer.update({where: {id}, data});
+            await this.prismaService.consumer
+                .update({
+                    where: {id},
+                    data: {
+                        nick: data.nick,
+                        profile: {
+                            update: data.profile
+                        }
+                    }
+                });
         } catch (e) {
-            console.log('updateConsumer', e.message)
-            throw new Error(e)
+            console.log('deleteConsumer', e.message)
+            throw new Error(e.message)
         }
     }
 
     async deleteConsumer(id: number): Promise<void> {
         try {
             const isExist =
-                await this.prismaService.consumer.findFirst({where: {id}});
+                await this.prismaService.consumer
+                    .findFirst({
+                        where: {id}
+                    });
             if (!isExist)
                 throw new Error(ResEnum.FAILURE + `There is no consumer with Id: ${id}`)
-            await this.prismaService.consumer.update({where: {id}, data: {deleted: true}});
+            await this.prismaService.consumer
+                .update({where: {id}, data: {deleted: true}});
         } catch (e) {
             console.log('deleteConsumer', e.message)
-            throw new Error(e)
+            throw new Error(e.message)
         }
     }
 }

@@ -1,4 +1,4 @@
-import React, {memo, useEffect} from 'react';
+import React, {memo} from 'react';
 
 import Box from '@mui/material/Box';
 import {DataGrid} from '@mui/x-data-grid';

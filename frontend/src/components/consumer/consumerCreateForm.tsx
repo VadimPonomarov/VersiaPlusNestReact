@@ -66,10 +66,10 @@ const _ConsumerCreateForm = () => {
                 {!!activeConsumer.id &&
                     <TextField
                         type={'number'}
+                        contentEditable={false}
                         className={css.input}
                         label={'id'}
-                        defaultValue={activeConsumer.id}
-                        disabled={true}
+                        value={activeConsumer.id}
                         variant="standard"
                         {...register("id")}
                     />

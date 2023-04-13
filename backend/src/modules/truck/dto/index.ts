@@ -14,3 +14,4 @@ export * from './entities/nomenclature.entity';
 export * from './entities/tariff.entity';
 export * from './entities/profile.entity';
 export * from './createProfile.dto';
+export * from './entities/parsing.entity';

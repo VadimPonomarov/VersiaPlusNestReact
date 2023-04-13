@@ -13,7 +13,6 @@ const swagger = new DocumentBuilder()
         type: "http",
         scheme: 'bearer',
         bearerFormat: 'JWT',
-
     }, 'access-token')
     .build();
 export default () => ({

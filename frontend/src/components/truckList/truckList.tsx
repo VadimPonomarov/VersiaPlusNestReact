@@ -1,5 +1,6 @@
 import React, {memo, useCallback, useEffect, useState, useTransition} from 'react';
 
+import {Switch, Tooltip} from "@mui/material";
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
@@ -12,6 +13,7 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
+import {useEffectOnce} from "usehooks-ts";
 import {v4} from 'uuid';
 
 import {columns} from '.';
@@ -23,16 +25,21 @@ import {
     deleteChecked,
     toggleCheckedAll,
     setTruckMarkerToList,
-    removeTruckMarkerFromList
+    removeTruckMarkerFromList,
+    truckParserToggle,
 } from '../../storage';
+import {_axiosService} from "../../storage/services";
 import {ITruck} from '../../storage/slices/truck-slice/interfaces';
 
 const _TruckList = () => {
     const dispatch = useAppDispatch();
-    const {trucks, refresh, checked, checkedAll} = useAppSelector(state => state.truck);
+    const {trucks, checked, checkedAll} = useAppSelector(state => state.truck);
+    const [parse, setParse] = useState<boolean | undefined>();
     const getTruckList = () => {
         dispatch(truckList());
     };
+    const fetchParserState = async () => await _axiosService.getTruckParserToggle();
+
     const [filtered, setFiltered] = useState(trucks);
     const [pending, startTransition] = useTransition();
 
@@ -75,6 +82,13 @@ const _TruckList = () => {
             dispatch(removeTruckMarkerFromList({id}));
     }
 
+    useEffectOnce(() => {
+        fetchParserState()
+            .then((response) => {
+                setParse(response.data.result.parsing);
+            })
+    })
+
     useEffect(() => {
         setFiltered(trucks);
     }, [trucks]);
@@ -96,6 +110,14 @@ const _TruckList = () => {
         setRowsPerPage(+event.target.value);
         setPage(0);
     };
+    const handleTruckParseToggleChange = () => {
+        dispatch(truckParserToggle());
+        setParse(!parse);
+    }
+
+    const getTitle = (columnId: string, row: ITruck): string => {
+        return columnId === 'Info' ? new Date(row.updatedAt).toLocaleString() : null
+    }
 
     return (
         <Paper sx={{width: '100%', overflow: 'hidden'}}>
@@ -105,6 +127,16 @@ const _TruckList = () => {
             >
                 Refresh
             </Button>
+            <Box>
+                <Tooltip title="Toggle parser" placement="right-start">
+                    <Switch
+                        checked={!!parse ? parse : false}
+                        onChange={
+                            () => handleTruckParseToggleChange()
+                        }
+                    />
+                </Tooltip>
+            </Box>
             <TableContainer>
                 <Table>
                     <TableHead>
@@ -146,23 +178,31 @@ const _TruckList = () => {
                                         {columns.map((column) => {
                                             const value = row[column.id];
                                             return (
-                                                <TableCell key={v4()} align={column.align}
-                                                           style={{padding: "0 4px", height: "15px"}}>
-                                                    {column.id === 'Show' &&
-                                                        <Checkbox
-                                                            defaultChecked={!!checked.includes(row.id)}
-                                                            value={!!checked.includes(row.id)}
-                                                            size="small"
-                                                            onClick={(e) => handleCheck(e, row.id)}
-                                                        />}
-                                                    {column.id === 'Info' && '💬️'}
-                                                    {(column.label === 'Stop' && row.stop !== null &&
-                                                    row.stop.match('icon-device-stop') ?
-                                                        '⛔️' : '')}
-                                                    {(column.label === 'Tracing' && row.tracing !== null &&
-                                                    row.tracing.match('green') ? '👁️' : '')}
-                                                    {column.id === 'Name' && row.name}
-                                                </TableCell>
+                                                <Tooltip
+                                                    title={getTitle(column.id, row)}
+                                                    placement="right-start"
+                                                >
+                                                    <TableCell
+                                                        key={v4()}
+                                                        align={column.align}
+                                                        style={{padding: "0 4px", height: "15px"}}
+                                                    >
+                                                        {column.id === 'Show' &&
+                                                            <Checkbox
+                                                                defaultChecked={!!checked.includes(row.id)}
+                                                                value={!!checked.includes(row.id)}
+                                                                size="small"
+                                                                onClick={(e) => handleCheck(e, row.id)}
+                                                            />}
+                                                        {column.id === 'Info' && '💬️'}
+                                                        {(column.label === 'Stop' && row.stop !== null &&
+                                                        row.stop.match('icon-device-stop') ?
+                                                            '⛔️' : '')}
+                                                        {(column.label === 'Tracing' && row.tracing !== null &&
+                                                        row.tracing.match('green') ? '👁️' : '')}
+                                                        {column.id === 'Name' && row.name}
+                                                    </TableCell>
+                                                </Tooltip>
                                             );
                                         })}
                                     </TableRow>

@@ -3,7 +3,7 @@ import {GridColDef} from "@mui/x-data-grid";
 export const columns: GridColDef[] = [
     {
         field: 'nick',
-        headerName: '🧑 Nick',
+        headerName: '👨‍👨‍👦‍👦',
         type: 'string',
         width: 220,
         editable: true,
@@ -12,7 +12,7 @@ export const columns: GridColDef[] = [
     },
     {
         field: 'phones',
-        headerName: '☎️',
+        headerName: '☎️ Phone list',
         type: 'string',
         width: 5,
         editable: true,
@@ -24,7 +24,7 @@ export const columns: GridColDef[] = [
     },
     {
         field: 'edit',
-        headerName: '💬',
+        headerName: '💬 Edit contact form',
         type: 'string',
         width: 5,
         editable: true,
@@ -36,7 +36,7 @@ export const columns: GridColDef[] = [
     },
     {
         field: 'del',
-        headerName: '🛑',
+        headerName: '🛑 Delete contact by click',
         type: 'string',
         width:5 ,
         editable: true,

@@ -62,7 +62,7 @@ async function main() {
                         });
                 }
             } else {
-               console.log('Seeding of tariffs failed. You are supposed to place initial data file with actual tariffs to public folder !!!')
+                console.log('Seeding of tariffs failed. You are supposed to place initial data file with actual tariffs to public folder !!!')
             }
         }
 
@@ -140,6 +140,13 @@ async function main() {
                 await browser.close();
             }
         })()
+
+        /* PARSING TOGGLE */
+
+        const isParsingExist = await prisma.parsing.findMany();
+        if (!isParsingExist.length) {
+            await prisma.parsing.create({data: {parsing: true}})
+        }
 
         /* THE END OF ALL SEEDING*/
 

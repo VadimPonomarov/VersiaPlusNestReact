@@ -1,7 +1,7 @@
 import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 
 import {initialState} from './constants';
-import {ITruck} from './interfaces';
+import {ITruck, ITruckParserState} from './interfaces';
 import {_axiosService} from '../../services';
 import {clearPending, setAlert, setPending} from "../common/commonSlice";
 import {AlertTypeEnum, IAlertMessage} from "../common/interfaces";
@@ -20,6 +20,45 @@ export const truckList = createAsyncThunk<ITruck[], undefined | null, { rejectVa
             }
             dispatch(clearPending());
             dispatch(setTruckList(response.data.result));
+            dispatch(setAlert({type: AlertTypeEnum.SUCCESS, message: IAlertMessage.SUCCESS}))
+        } catch (e) {
+            dispatch(clearPending());
+            dispatch(setAlert({type: AlertTypeEnum.ERROR, message: IAlertMessage.FAILURE + e.message}))
+        }
+    });
+
+export const getTruckParserToggleState = createAsyncThunk<ITruckParserState, undefined | null, { rejectValue: string }>(
+    "truck/getTruckParserToggleState",
+    async (_, {rejectWithValue, dispatch}) => {
+        try {
+            dispatch(setPending());
+            const response = await _axiosService.getTruckParserToggle();
+            if (response.status >= 400) {
+                dispatch(clearPending());
+                dispatch(setAlert({type: AlertTypeEnum.ERROR, message: IAlertMessage.FAILURE}))
+                return rejectWithValue(IAlertMessage.FAILURE);
+            }
+            dispatch(clearPending());
+            dispatch(setAlert({type: AlertTypeEnum.SUCCESS, message: IAlertMessage.SUCCESS}));
+            dispatch(setTruckParserToggleState(response.data.result));
+        } catch (e) {
+            dispatch(clearPending());
+            dispatch(setAlert({type: AlertTypeEnum.ERROR, message: IAlertMessage.FAILURE + e.message}))
+        }
+    });
+
+export const truckParserToggle = createAsyncThunk<unknown, undefined | null, { rejectValue: string }>(
+    "truck/truckParserToggle",
+    async (_, {rejectWithValue, dispatch}) => {
+        try {
+            dispatch(setPending());
+            const response = await _axiosService.patchTruckParserToggle();
+            if (response.status >= 400) {
+                dispatch(clearPending());
+                dispatch(setAlert({type: AlertTypeEnum.ERROR, message: IAlertMessage.FAILURE}))
+                return rejectWithValue(IAlertMessage.FAILURE);
+            }
+            dispatch(clearPending());
             dispatch(setAlert({type: AlertTypeEnum.SUCCESS, message: IAlertMessage.SUCCESS}))
         } catch (e) {
             dispatch(clearPending());
@@ -71,6 +110,9 @@ const truckSlice = createSlice({
 
         toggleRefresh(state) {
             state.refresh = !state.refresh;
+        },
+        setTruckParserToggleState(state, action: PayloadAction<ITruckParserState>) {
+            state.truckParserState = {...action.payload};
         }
     },
 
@@ -83,6 +125,7 @@ export const {
     deleteChecked,
     toggleCheckedAll,
     deleteOneFromBusyList,
-    setOneToBusyList
+    setOneToBusyList,
+    setTruckParserToggleState
 } = truckSlice.actions;
 export default truckSlice.reducer;

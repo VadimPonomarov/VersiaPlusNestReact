@@ -13,6 +13,11 @@ export interface ITruck {
     updatedAt: string;
 }
 
+export interface ITruckParserState {
+    id: number;
+    parser: boolean;
+}
+
 export enum TruckTypeEnum {
     ANY = "ANY",
     СЦЕПКА = "СЦЕПКА",
@@ -27,4 +32,5 @@ export interface IInitialState {
     loading: boolean;
     error: string | null;
     refresh: boolean;
+    truckParserState: ITruckParserState;
 }

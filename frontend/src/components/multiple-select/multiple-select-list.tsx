@@ -23,20 +23,10 @@ const _MultipleSelectList = (props: IProps) => {
     const dispatch = useAppDispatch();
 
     const onClickHandler = useCallback((e, item: IDirection) => {
+        e.stopPropagation();
         dispatch(setDirectionCurrent(item));
-        const el = document.elementFromPoint(1, 1);
-        const ev = new MouseEvent('click', {
-            'view': window,
-            'bubbles': true,
-            'cancelable': true,
-            'screenX': 1,
-            'screenY': 1
-        });
-        el.dispatchEvent(ev);
-
         setTimeout(async () => {
             await dispatch(setForceReRendering());
-            el.dispatchEvent(ev);
         }, 100);
 
     }, [dispatch]);

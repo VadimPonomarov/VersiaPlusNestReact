@@ -51,8 +51,8 @@ const _AppDrawer: FC = () => {
                     handleDrag(e)
             }
         >
-            <Box draggable={true} className={css.mainBox}>
-                <Paper className={css.paper} draggable={false}>
+            <Box draggable={true}>
+                <Paper draggable={false}>
                     <Box
                         sx={{pl:2}}
                         onClick={() => handleClickHeader()}

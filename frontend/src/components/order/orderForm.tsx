@@ -46,12 +46,12 @@ const _OrderForm = () => {
 
     const _reset = () => {
         dispatch(setOrderCurrentInitial());
-        reset();
+        window.location.reload();
     };
     const onSubmit = (body) => {
         dispatch(!!activeOrder.id ?
             setOnSubmit({...activeOrder, ...body, dateCreation: Date.now()}) :
-            setOnSubmit({...activeOrder, ...body, id: v4()})
+            setOnSubmit({...activeOrder, ...body, dateCreation: Date.now(), id: v4()})
         );
         navigate('/order-list');
     };
@@ -60,7 +60,7 @@ const _OrderForm = () => {
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, key: keyof IOrder) => {
-        dispatch(alterOrderCurrent({[key]: e.nativeEvent.target['attributes']['value'].nodeValue}))
+        dispatch(alterOrderCurrent({[key]: e.nativeEvent.target['attributes']['value'].nodeValue}));
     }
 
     return (

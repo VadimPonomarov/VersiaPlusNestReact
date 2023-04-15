@@ -45,12 +45,12 @@ export class AuthController {
         @Body() createUserDto: CreateUserDto,
         @Res() res: Response,
     ): Promise<void> {
-        await this.authService
-            .create(createUserDto)
-            .then((result) => res.status(HttpStatus.OK).send(ResEnum.SUCCESS))
-            .catch((e) =>
-                res.status(HttpStatus.NOT_ACCEPTABLE).send(ResEnum.FAILURE),
-            );
+        try {
+            await this.authService.create(createUserDto);
+            res.status(HttpStatus.OK).send(`${ResEnum.SUCCESS} Check your email to confirm registration`);
+        } catch (e) {
+            res.status(HttpStatus.NOT_ACCEPTABLE).send(e.message)
+        }
     }
 
     /*-------------------------*/
@@ -67,12 +67,12 @@ export class AuthController {
             type: JwtEnum.ACTIVATE,
             token: params.jwt,
         };
-        await this.authService
-            .activateUser(payLoad)
-            .then((result) => res.status(HttpStatus.OK).send(ResEnum.SUCCESS))
-            .catch((e) =>
-                res.status(HttpStatus.NOT_ACCEPTABLE).send(ResEnum.FAILURE),
-            );
+        try {
+            await this.authService.activateUser(payLoad)
+            res.status(HttpStatus.OK).send(ResEnum.SUCCESS)
+        } catch (e) {
+            res.status(HttpStatus.NOT_ACCEPTABLE).send(e.message)
+        }
     }
 
     /*-------------------------*/
@@ -117,15 +117,11 @@ export class AuthController {
         @Res() res: Response,
         @Body() logInDto: LogInDto,
     ): Promise<void> {
-        await this.authService
-            .logIn(logInDto)
-            .then((result) => {
-                res
-                    .status(HttpStatus.OK)
-                    .send({message: ResEnum.SUCCESS, result: result});
-            })
-            .catch((e) =>
-                res.status(HttpStatus.NOT_ACCEPTABLE).send(ResEnum.FAILURE),
-            );
+        try {
+            const result = await this.authService.logIn(logInDto);
+            res.status(HttpStatus.OK).send({message: ResEnum.SUCCESS, result});
+        } catch (e) {
+            res.status(HttpStatus.NOT_ACCEPTABLE).send(e.message)
+        }
     }
 }

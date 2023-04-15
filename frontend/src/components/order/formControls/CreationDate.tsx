@@ -1,6 +1,6 @@
 import React, {FC, memo} from 'react';
 
-import {TextField} from "@mui/material";
+import {FormControl, Input, TextField} from "@mui/material";
 import InputLabel from "@mui/material/InputLabel";
 import {format} from "date-fns";
 
@@ -11,14 +11,25 @@ const _CreationDate: FC<IForm> = ({prp: {form, activeOrder}}) => {
     return (
         <>
             <InputLabel><small>Creation date</small></InputLabel>
-            <TextField
-                value={!!activeOrder.dateCreation ?
-                    format(new Date(activeOrder.dateCreation), 'dd.MM.yyyy hh:mm:ss:SSS') :
-                    format(Date.now(), 'dd.MM.yyyy hh:mm:ss:SSS')}
-                variant={'standard'}
-                type={'text'}
-                {...register("dateCreation")}
-            />
+            <FormControl sx={{
+                width: "100%",
+            }}>
+                <Input
+                    value={
+                        !!activeOrder.dateCreation ?
+                            new Date(activeOrder.dateCreation).toLocaleString() :
+                            new Date(Date.now()).toLocaleString()
+                    }
+                    type={'text'}
+
+                    {...register("dateCreation", {
+                        required: {
+                            value: true,
+                            message: 'Required'
+                        }
+                    })}
+                />
+            </FormControl>
         </>
     );
 };

@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import Button from "@mui/material/Button";
 import {useForm} from "react-hook-form";
+import {useNavigate} from 'react-router-dom';
 
 import css from "./index.module.scss";
 import {setAlert, useAppDispatch, useAppSelector} from "../../storage";
@@ -28,11 +29,20 @@ interface IProps {
 const _ConsumerCreateForm = () => {
     const dispatch = useAppDispatch();
     const {consumers, activeConsumer} = useAppSelector(state => state.order);
+    const navigate = useNavigate();
     const {register, handleSubmit, reset, formState: {errors, isValid}, getValues} =
         useForm<IConsumer>({
             mode: 'onChange',
         });
+    const isConsumerNickExist = (nick: string) => {
+        return consumers.find((item: IConsumer) => item.nick === nick)
+    }
     const onSubmit = (data: IConsumer) => {
+        if (!data.id && isConsumerNickExist(data.nick)) return dispatch(setAlert({
+                type: AlertTypeEnum.ERROR,
+                message: `Consumer with nick: ${data.nick} already exist`
+            })
+        )
         if (!data.id) {
             dispatch(postConsumer(data))
                 .then(() => {
@@ -50,6 +60,7 @@ const _ConsumerCreateForm = () => {
                     dispatch(clearConsumerCurrent())
                 );
         }
+        navigate('/consumers');
 
     };
     const onReset = async () => {

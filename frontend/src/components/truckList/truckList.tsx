@@ -1,6 +1,6 @@
-import React, {memo, useCallback, useEffect, useState, useTransition} from 'react';
+import React, {FC, memo, useCallback, useEffect, useState, useTransition} from 'react';
 
-import {Switch, Tooltip} from "@mui/material";
+import {Input, Switch, Tooltip} from "@mui/material";
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
@@ -29,29 +29,33 @@ import {
     truckParserToggle,
 } from '../../storage';
 import {_axiosService} from "../../storage/services";
+import {IExecutorTruck} from '../../storage/slices/order-slice/interfaces';
 import {ITruck} from '../../storage/slices/truck-slice/interfaces';
 
-const _TruckList = () => {
+interface IProps {
+    executors?: boolean;
+}
+
+const _TruckList: FC<IProps> = ({executors}) => {
     const dispatch = useAppDispatch();
-    const {trucks, checked, checkedAll} = useAppSelector(state => state.truck);
+    const {trucks, checked, checkedAll, busy} = useAppSelector(state => state.truck);
     const [parse, setParse] = useState<boolean | undefined>();
     const getTruckList = () => {
         dispatch(truckList());
     };
     const fetchParserState = async () => await _axiosService.getTruckParserToggle();
 
-    const [filtered, setFiltered] = useState(trucks);
-    const [pending, startTransition] = useTransition();
+    const [filterValue, setFilterValue] = useState<string>();
+    const [filtered, setFiltered] = useState<ITruck[]>([]);
 
-    const filterHandler = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-        startTransition(() => {
-            const candidate: ITruck[] = trucks
-                .filter(truck =>
-                    truck.name.toLowerCase()
-                        .match(e.target.value.toLowerCase())
-                );
-            setFiltered(candidate);
-        });
+    const filterHandler = (e) => {
+        const candidate: ITruck[] = trucks
+            .filter(truck =>
+                truck.name.toLowerCase()
+                    .match(e.target.value.toLowerCase())
+            );
+        setFilterValue(e.target.value)
+        setFiltered(candidate)
     };
 
     const _setChecked = useCallback((idList: number[]) => {
@@ -95,6 +99,7 @@ const _TruckList = () => {
 
     const setFilterNullHandler = () => {
         setFiltered(trucks);
+        setFilterValue(undefined)
     };
 
     /*-----------*/
@@ -117,6 +122,12 @@ const _TruckList = () => {
 
     const getTitle = (columnId: string, row: ITruck): string => {
         return columnId === 'Info' ? new Date(row.updatedAt).toLocaleString() : null
+    }
+
+    const isBusy = (t: IExecutorTruck) => {
+        const _isBusy = busy.find(b => b.name === t.name);
+        if (!!_isBusy) return ' ✔️ '
+        return ''
     }
 
     return (
@@ -160,10 +171,14 @@ const _TruckList = () => {
                                     {column.label === 'Name' &&
                                         <Box>
                                             <TextField
+                                                defaultValue={filterValue}
                                                 placeholder={'Filter ...'}
                                                 variant={'standard'}
-                                                onChange={(e) => filterHandler(e)}
+                                                onBlur={(e) => filterHandler(e)}
+                                                onDoubleClick={() => setFilterNullHandler()}
                                             />
+                                            <span>🚀</span>
+                                            <span onClick={() => setFilterNullHandler()}>💥</span>
                                         </Box>
                                     }
                                 </TableCell>
@@ -179,6 +194,7 @@ const _TruckList = () => {
                                             const value = row[column.id];
                                             return (
                                                 <Tooltip
+                                                    key={v4()}
                                                     title={getTitle(column.id, row)}
                                                     placement="right-start"
                                                 >
@@ -200,7 +216,10 @@ const _TruckList = () => {
                                                             '⛔️' : '')}
                                                         {(column.label === 'Tracing' && row.tracing !== null &&
                                                         row.tracing.match('green') ? '👁️' : '')}
-                                                        {column.id === 'Name' && row.name}
+                                                        {column.id === 'Name' &&
+                                                            isBusy({code: row.code, name: row.name}) +
+                                                            row.name
+                                                        }
                                                     </TableCell>
                                                 </Tooltip>
                                             );

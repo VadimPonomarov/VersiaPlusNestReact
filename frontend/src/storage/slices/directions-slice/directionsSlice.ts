@@ -50,7 +50,7 @@ const directionsSlice = createSlice({
                     id: null
                 }));
             if (isExist) return;
-            state.directions.push({...state.directionCurrent, id: v4()});
+            state.directions = [...state.directions, {...state.directionCurrent, id: v4()}];
         },
         removeDirectionFromArray(state, action: PayloadAction<IDirection>) {
             state.directions = state.directions.filter(item => item.id !== action.payload.id);
@@ -83,7 +83,6 @@ const directionsSlice = createSlice({
                 (Math.abs(item.from.latLng.lat - action.payload.latLng.lat) < 0.05 &&
                     Math.abs(item.from.latLng.lng - action.payload.latLng.lng) < 0.05)
             );
-            if (result) return console.log(result.id);
         }
     }
 });

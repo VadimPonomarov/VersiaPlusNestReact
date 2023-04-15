@@ -1,8 +1,9 @@
 import React, {FC, memo} from 'react';
 
-import {Container, TextField} from "@mui/material";
+import {Container, Input, TextField} from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
+import {format} from 'date-fns';
 
 import {IForm} from "./interfaces/prpInterface";
 import css from "../index.module.scss";
@@ -15,9 +16,7 @@ const _DateLoadingControl: FC<IForm> = ({prp: {form, activeOrder, handleChange}}
             <FormControl sx={{
                 width: "100%",
             }}>
-                <TextField
-                    required={true}
-                    variant={'standard'}
+                <Input
                     onChange={e => handleChange(e, 'dateLoading')}
                     defaultValue={activeOrder.dateLoading}
                     type={'date'}

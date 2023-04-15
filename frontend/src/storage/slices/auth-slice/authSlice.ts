@@ -30,12 +30,13 @@ export const registration = createAsyncThunk<undefined, IRegistrationInputs, { r
     async (body, {rejectWithValue, dispatch}) => {
         try {
             dispatch(setPending());
-            const response = await _axiosService.postLogin(body);
+            const response = await _axiosService.postRegistration(body);
             if (response.status >= 400) {
                 dispatch(clearPending());
                 dispatch(setAlert({type: AlertTypeEnum.ERROR, message: 'Error 👎'}))
                 return rejectWithValue('Error 👎');
             }
+            dispatch(setAlert({type: AlertTypeEnum.SUCCESS, message: response.data}))
             dispatch(clearPending());
         } catch (e) {
             dispatch(clearPending());

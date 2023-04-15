@@ -9,7 +9,7 @@ import {
     Home as HomeIcon
 } from "@mui/icons-material";
 import {AppBar, Box, FormControlLabel, FormGroup, IconButton, Menu, MenuItem, Switch, Toolbar} from "@mui/material";
-import {Link, useNavigate} from "react-router-dom";
+import {Link, NavLink, useNavigate} from "react-router-dom";
 
 import css from './index.module.scss';
 import {changeDrawer, setIsAuth, useAppDispatch, useAppSelector} from '../../storage';
@@ -228,7 +228,20 @@ const _AppBar: FC = () => {
                                         My account
                                     </MenuItem>
                                     <MenuItem>
-                                        <Link to='http://localhost:3001/api'>Swagger</Link>
+                                        <NavLink
+                                            to='http://localhost:8080'
+                                            style={{textDecoration: 'none'}}
+                                        >
+                                            DB client
+                                        </NavLink>
+                                    </MenuItem>
+                                    <MenuItem>
+                                        <NavLink
+                                            to='http://localhost:3001/api'
+                                            style={{textDecoration: 'none'}}
+                                        >
+                                            Swagger
+                                        </NavLink>
                                     </MenuItem>
                                 </Menu>
                             </div>

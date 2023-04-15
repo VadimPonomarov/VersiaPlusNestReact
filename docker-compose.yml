@@ -25,7 +25,6 @@ services:
     volumes:
       - ./mysql:/var/lib/mysql
 
-
   client:
     build:
       context: ./frontend/.
@@ -41,3 +40,10 @@ services:
       - ./frontend:/app
     command: >
       sh -c  "npm run fix && npm run start"
+
+  adminer:
+    image: adminer
+    restart: on-failure
+    ports:
+      - "8080:8080"
+

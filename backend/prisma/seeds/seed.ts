@@ -145,7 +145,7 @@ async function main() {
 
         const isParsingExist = await prisma.parsing.findMany();
         if (!isParsingExist.length) {
-            await prisma.parsing.create({data: {parsing: true}})
+            await prisma.parsing.create({data: {parsing: false}})
         }
 
         /* THE END OF ALL SEEDING*/

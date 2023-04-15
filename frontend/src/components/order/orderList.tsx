@@ -1,7 +1,8 @@
 import * as React from 'react';
-import {memo, useMemo, useState} from "react";
+import {memo, useEffect, useMemo, useState} from "react";
 
 import {AccountCircle, Send} from "@mui/icons-material";
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditIcon from '@mui/icons-material/Edit';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import RvHookupIcon from '@mui/icons-material/RvHookup';
@@ -24,17 +25,24 @@ import {
 } from "../../storage";
 import {IDirection} from "../../storage/slices/directions-slice/interfaces";
 import {IExecutorTruck, IOrder} from '../../storage/slices/order-slice/interfaces';
-import {deleteExecutorTruck, setOrderCurrentById, setOrderList} from "../../storage/slices/order-slice/orderSlice";
+import {
+    deleteExecutorTruck,
+    deleteOrderList,
+    setOrderCurrentById,
+    setOrderList
+} from "../../storage/slices/order-slice/orderSlice";
 import {RoutePanel} from "../route-panel/routePanel";
 
 const _OrderList = () => {
     const {orders, activeOrder} = useAppSelector(state => state.order);
     const [filteredOrders, setFiltered] = useState<IOrder[]>([]);
-    useEffectOnce(() => {
-        setFiltered(orders)
-    })
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        setFiltered(orders)
+    }, [orders])
+
     const csvOptions = {
         fieldSeparator: ',',
         quoteStrings: '"',
@@ -87,47 +95,14 @@ const _OrderList = () => {
                             </Box>
                         ),
                     },
-                          {
-                              accessorKey: 'dateCreation',
-                              header: 'Created at',
-                              filterFn: 'customFilterFnCreation',
-                              renderColumnFilterModeMenuItems: ({column, onSelectFilterMode}) => [
-                                  <MenuItem
-                                      key="Equal"
-                                      onClick={() => onSelectFilterMode('customFilterFnCreation')}
-                                  >
-                                      Exact
-                                  </MenuItem>,
-                              ],
-                              Cell: ({renderedCellValue, row}) => (
-                                  <Box
-                                      sx={{
-                                          display: 'flex',
-                                          alignItems: 'flex-start',
-                                          gap: '1rem',
-                                          fontSize: 14,
-                                          maxSize: '20px',
-                                      }}
-                                  >
-                                      <span>
-                                          {format(new Date(row.original.dateCreation), 'dd.MM.yyyy hh:mm:ss:SSS')}
-                                      </span>
-                                  </Box>
-                              ),
-                          },
                     {
-                        accessorKey: 'status',
-                        header: 'Status',
-                    },
-                    {
-                        accessorKey: 'dateLoading',
-                        header: 'Date of loading',
-                        filterVariant: 'text',
-                        filterFn: 'customFilterFn',
+                        accessorKey: 'dateCreation',
+                        header: 'Created at',
+                        filterFn: 'customFilterFnCreation',
                         renderColumnFilterModeMenuItems: ({column, onSelectFilterMode}) => [
                             <MenuItem
                                 key="Equal"
-                                onClick={() => onSelectFilterMode('customFilterFn')}
+                                onClick={() => onSelectFilterMode('customFilterFnCreation')}
                             >
                                 Exact
                             </MenuItem>,
@@ -142,7 +117,40 @@ const _OrderList = () => {
                                     maxSize: '20px',
                                 }}
                             >
-                                {format(new Date(row.original.dateLoading), 'dd.MM.yyyy')}
+                                      <span>
+                                         {new Date(row.original.dateCreation).toLocaleDateString()}
+                                      </span>
+                            </Box>
+                        ),
+                    },
+                    {
+                        accessorKey: 'status',
+                        header: 'Status',
+                    },
+                    {
+                        accessorKey: 'dateLoading',
+                        header: 'Date of loading',
+                        filterVariant: 'text',
+                        filterFn: 'customFilterFnLoading',
+                        renderColumnFilterModeMenuItems: ({column, onSelectFilterMode}) => [
+                            <MenuItem
+                                key="Equal"
+                                onClick={() => onSelectFilterMode('customFilterFnLoading')}
+                            >
+                                Exact
+                            </MenuItem>,
+                        ],
+                        Cell: ({renderedCellValue, row}) => (
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: '1rem',
+                                    fontSize: 14,
+                                    maxSize: '20px',
+                                }}
+                            >
+                                {new Date(Date.parse(row.original.dateLoading)).toLocaleDateString()}
                             </Box>
                         ),
                     },
@@ -177,10 +185,11 @@ const _OrderList = () => {
         dispatch(setOrderCurrentById(id));
         navigate(`/order/${id}`);
     }
-    const handleProcess = async (route: IDirection) => {
-        await dispatch(setDirectionCurrent({...route, active: true}));
-        await dispatch(setNoWatchAll());
-        await dispatch(updateDirectionInArray({...route, active: true}));
+    const handleProcess = (route: IDirection, order: IOrder) => {
+        dispatch(setDirectionCurrent({...route, active: true}));
+        dispatch(setNoWatchAll());
+        dispatch(updateDirectionInArray({...route, active: true}));
+        dispatch(setOrderCurrentById(order.id))
         navigate('/');
     }
     const handleDoubleClick = (e, payload: {
@@ -192,8 +201,14 @@ const _OrderList = () => {
         dispatch(deleteOneFromBusyList(payload.truck));
     }
 
-    const getOrderById = (id: string): IOrder => {
-        return orders.find(item => item.id === id);
+    const getExecutorsByOrderId = (id: string): IExecutorTruck[] => {
+        const res = filteredOrders.find(item => item.id === id);
+        if (!!res.executors.length) return res.executors;
+        return []
+    }
+
+    const handleDelete = (order: IOrder) => {
+        dispatch(deleteOrderList(order))
     }
 
     return (
@@ -258,19 +273,20 @@ const _OrderList = () => {
             )}
 
             filterFns={{
-                customFilterFn: (row, id, filterValue) => {
-                    if (filterValue.length === 10) {
-                        return filterValue === new Date(row.original.dateLoading).toLocaleDateString()
-                    }
-                    return true
-                },
-
                 customFilterFnCreation: (row, id, filterValue) => {
                     if (filterValue.length === 10) {
                         return filterValue === new Date(row.original.dateCreation).toLocaleDateString()
                     }
                     return true
                 },
+
+                customFilterFnLoading: (row, id, filterValue) => {
+                    if (filterValue.length === 10) {
+                        return filterValue === new Date(row.original.dateLoading).toLocaleDateString()
+                    }
+                    return true
+                },
+
             }}
             renderDetailPanel={({row: {original: {id, route}}}) => (
                 <Box
@@ -283,7 +299,7 @@ const _OrderList = () => {
                     }}
                 >
                     <RoutePanel route={route}/>
-                    {getOrderById(id).executors.map(item =>
+                    {!!getExecutorsByOrderId(id).length && getExecutorsByOrderId(id).map(item =>
                         <Box
                             key={item.name}
                             onDoubleClick={(e) =>
@@ -295,7 +311,6 @@ const _OrderList = () => {
                             }}
                         >
                             <img
-
                                 style={{
                                     width: '20px',
                                     height: '20px',
@@ -329,7 +344,7 @@ const _OrderList = () => {
                 <MenuItem
                     key={'process'}
                     onClick={(e) =>
-                        handleProcess(table.getRow(row.id).original.route
+                        handleProcess(table.getRow(row.id).original.route, row.original
                         )}
                     sx={{
                         m: 0
@@ -341,7 +356,7 @@ const _OrderList = () => {
                     Process
                 </MenuItem>,
                 <MenuItem
-                    key={0}
+                    key={'profile'}
                     disabled={true}
                     onClick={() => {
                         closeMenu();
@@ -354,7 +369,7 @@ const _OrderList = () => {
                     View Profile
                 </MenuItem>,
                 <MenuItem
-                    key={1}
+                    key={'email'}
                     disabled={true}
                     onClick={() => {
                         closeMenu();
@@ -365,6 +380,18 @@ const _OrderList = () => {
                         <Send/>
                     </ListItemIcon>
                     Send Email
+                </MenuItem>,
+                <MenuItem
+                    key={'delete'}
+                    onClick={() => {
+                        handleDelete(table.getRow(row.id).original);
+                    }}
+                    sx={{m: 0}}
+                >
+                    <ListItemIcon>
+                        <DeleteForeverIcon/>
+                    </ListItemIcon>
+                    Delete
                 </MenuItem>,
             ]}
         />

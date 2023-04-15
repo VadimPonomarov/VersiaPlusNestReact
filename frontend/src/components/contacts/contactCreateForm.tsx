@@ -5,7 +5,8 @@ import Button from "@mui/material/Button";
 import {useForm} from "react-hook-form";
 import {useLocation, useNavigate} from "react-router-dom";
 
-import {useAppDispatch, useAppSelector} from "../../storage";
+import {setAlert, useAppDispatch, useAppSelector} from "../../storage";
+import { AlertTypeEnum } from '../../storage/slices/common/interfaces';
 import {IContact} from "../../storage/slices/order-slice/interfaces";
 import {
     clearConsumerCurrentContact, getConsumers, patchContact,
@@ -22,7 +23,15 @@ const _ContactForm = () => {
         useForm<Partial<IContact>>({
             mode: 'onChange',
         });
+    const isContactLabelExist = (label: string) => {
+        return activeConsumer.profile.contacts.find((item: IContact) => item.label === label)
+    }
     const onSubmit = async (data: IContact) => {
+        if (!data.id && isContactLabelExist(data.label)) return dispatch(setAlert({
+                type: AlertTypeEnum.ERROR,
+                message: `Contact with label: ${data.label} already exist`
+            })
+        )
         const nextConsumerId = activeConsumer.id;
         const _data: IContact = {...data, id: +data.id, consumerProfileId: +activeConsumer.consumerProfileId }
         if (!!data.id) {

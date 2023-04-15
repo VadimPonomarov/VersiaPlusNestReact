@@ -5,7 +5,7 @@ import {HandlebarsAdapter} from '@nestjs-modules/mailer/dist/adapters/handlebars
 import * as process from 'process';
 import {JwtEnum} from '../common/constants';
 
-const swagger = new DocumentBuilder()
+export const swagger = new DocumentBuilder()
     .setTitle('API')
     .setDescription('API description')
     .setVersion('1.0')
@@ -15,6 +15,12 @@ const swagger = new DocumentBuilder()
         bearerFormat: 'JWT',
     }, 'access-token')
     .build();
+
+export const CORSprops = {
+    /*origin: '*',*/
+    //origin: '*',
+    allowedHeaders: '*',
+}
 export default () => ({
     port: parseInt(process.env.SERVER_PORT, 10) || 3001,
     database: {

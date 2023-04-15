@@ -48,7 +48,7 @@ const _PositionedPopper: FC<IProps> = (props) => {
             </Popper>
             <Grid container padding={0}>
                 <Button onClick={handleClick(PopperPlacementType)}>
-                    <span onDoubleClick={() => handleDblClickPointer()}>
+                    <span id='hiddenId' onDoubleClick={() => handleDblClickPointer()}>
                             {currentIcon.url ?
                                 <Paper className={css.iconPaper}>
                                     <motion.img

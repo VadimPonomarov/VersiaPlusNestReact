@@ -257,6 +257,11 @@ const orderSlice = createSlice({
                 state.orders = [...state.orders, {...state.activeOrder}]
             }
         },
+
+        deleteOrderList(state, action: PayloadAction<IOrder>) {
+            state.orders = state.orders.filter(item => item.id !== action.payload.id);
+        },
+
         setOnSubmit(state, action: PayloadAction<IOrder>) {
             const isExist = state.orders.find(item => item.id === action.payload.id);
             if (isExist) {
@@ -300,5 +305,6 @@ export const {
     setOnSubmit,
     setExecutorTruck,
     deleteExecutorTruck,
+    deleteOrderList
 } = orderSlice.actions;
 export default orderSlice.reducer;

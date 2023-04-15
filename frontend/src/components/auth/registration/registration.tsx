@@ -20,10 +20,9 @@ const _Registration = () => {
         useForm<IRegistrationInputs>({
             mode: 'onChange',
         });
-    const onSubmit = async (body: IRegistrationInputs) => {
-        dispatch(await registration(body));
-        if (!error) return await navigate('/login');
-        reset();
+    const onSubmit = (body: IRegistrationInputs) => {
+        dispatch(registration(body));
+        navigate('/login');
     };
 
     return (

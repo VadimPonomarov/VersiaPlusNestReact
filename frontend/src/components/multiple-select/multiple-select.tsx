@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {FC, memo, useEffect, useState, useTransition} from 'react';
+import {FC, memo, useEffect, useRef, useState, useTransition} from 'react';
 
 import {Box, Checkbox, Input, Paper, Switch} from '@mui/material';
 import FormControl from '@mui/material/FormControl';
@@ -38,11 +38,13 @@ const _MultipleSelect: FC = () => {
         setFilter('');
         setFiltered(directions);
     };
-    const filterCheckHandler = () => {
+    const filterCheckHandler = (e) => {
+        e.stopPropagation()
         setFilterCheck(!filterCheck);
         setFilter('');
     };
-    const onCheckAllHandler = () => {
+    const onCheckAllHandler = (e) => {
+        e.stopPropagation()
         dispatch(setWatchAll());
     };
 
@@ -55,37 +57,36 @@ const _MultipleSelect: FC = () => {
                 <Select
                     labelId="multiple-name-label"
                     id="multiple-name"
-                    input={<Input />}
+                    input={<Input/>}
                     MenuProps={MenuProps}
                 >
-                    <MenuItem
+                    <Box
                         sx={{display: "flex", alignItems: 'center', justifyContent: 'start'}}>
                         <Box sx={{display: "flex", alignItems: 'center', justifyContent: 'center'}}>
                             <Checkbox
                                 checked={showAllDirections}
                                 size="small"
-                                onChange={() => onCheckAllHandler()}
+                                onChange={(e) => onCheckAllHandler(e)}
                             />
                             <Switch
                                 checked={filterCheck}
                                 size="small"
-                                onChange={() => filterCheckHandler()}
+                                onChange={(e) => filterCheckHandler(e)}
                             />
                         </Box>
-                        <Paper>
-                            <Box>
-                                <Input
-                                    value={filter}
-                                    placeholder={`Filter list ${(!filterCheck ? 'from ' : 'to ')}...`}
-                                    onChange={(e) => filterHandler(e)}
-                                    onDoubleClick={() => setFilterNullHandler()}
-                                    sx={{minWidth: "120px", zIndex: 1010, width: '100%'}}
-                                />
-                            </Box>
+                        <Paper sx={{zIndex: 1020}}>
+                            <Input
+                                id={'inputId'}
+                                value={filter}
+                                placeholder={`Filter list ${(!filterCheck ? 'from ' : 'to ')}...`}
+                                onChange={(e) => filterHandler(e)}
+                                onDoubleClick={() => setFilterNullHandler()}
+                                sx={{minWidth: "120px", zIndex: 1021, width: '100%'}}
+                            />
                         </Paper>
-                    </MenuItem>
+                    </Box>
                     {!!filtered.length &&
-                      <MultipleSelectList list={filtered} />
+                        <MultipleSelectList list={filtered}/>
                     }
                 </Select>
             </FormControl>

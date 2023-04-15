@@ -7,7 +7,7 @@ import {IConsumer, IContact} from "../slices/order-slice/interfaces";
 const _baseUrl = process.env.REACT_APP_AXIOS_BASE_URL as string;
 const _axios = axios.create({
     baseURL: _baseUrl,
-    withCredentials: false,
+   /* withCredentials: false,*/
 });
 
 export const _accessToken = () => {
@@ -48,7 +48,7 @@ _axios.interceptors.response.use((config) => {
 
 export const _axiosService = {
     postLogin: (body: ILoginInputs) => _axios.post('/auth/login', body),
-    postRegistration: (body: IRegistrationInputs) => _axios.post('/auth/registration', body),
+    postRegistration: (body: IRegistrationInputs) => _axios.post('/auth/register', body),
     getTruckList: () => _axios.get('/truck'),
     patchTruckParserToggle: () => _axios.patch('/truck/toggle'),
     getTruckParserToggle: () => _axios.get('/truck/parse'),

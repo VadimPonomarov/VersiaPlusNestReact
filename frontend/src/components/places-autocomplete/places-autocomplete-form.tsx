@@ -28,7 +28,7 @@ const _PlacesAutocompleteForm: FC = () => {
                     .routes[0]
                     .legs
                     .reduce((a, b) => a + (+b.distance.value), 0);
-                dispatch(setDistanceCurrent(`${(_dist/1000).toFixed(2)} км.`));
+                dispatch(setDistanceCurrent(`${(_dist / 1000).toFixed(2)} км.`));
             })
             .then(result => dispatch(addDirectionToArray()))
             .catch(err => console.log(`!!! Fields "From ..." and "To ..." are supposed to be fulfilled`));
@@ -46,6 +46,7 @@ const _PlacesAutocompleteForm: FC = () => {
             {!!directions.length &&
                 <MultipleSelect/>
             }
+
             <PlacesAutocomplete
                 placeHolder={"Where are you going from: "}
                 isFrom={true}

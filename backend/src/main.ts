@@ -1,6 +1,6 @@
 import {NestFactory} from '@nestjs/core';
 import {AppModule} from './app.module';
-import config from './config/configuration';
+import config, {CORSprops} from './config/configuration';
 import {SwaggerModule} from '@nestjs/swagger';
 import {NestExpressApplication} from '@nestjs/platform-express';
 import * as cookieParser from 'cookie-parser';
@@ -11,11 +11,7 @@ import * as hbs from 'express-handlebars';
 async function bootstrap() {
     const PORT = config().port;
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
-    app.enableCors({
-        origin: ['http://localhost:3000/*', "http://client:3000/*"],
-        allowedHeaders: '*',
-        credentials: false
-    });
+    app.enableCors(CORSprops);
     app.useStaticAssets(join(cwd(), 'public'));
     app.engine('hbs', hbs(config().hbs));
     app.setBaseViewsDir(join(cwd(), 'views'));

@@ -45,7 +45,6 @@ const _AppBar: FC = () => {
         setMenuCurrent(event.currentTarget.id);
         setAnchorEl(event.currentTarget);
     };
-
     const handleNavigate = (url: string) => {
         navigate(url);
         handleClose();
@@ -54,7 +53,6 @@ const _AppBar: FC = () => {
         setMenuCurrent(null);
         setAnchorEl(null);
     };
-
     const handleClickMenuIcon: React.MouseEventHandler<HTMLButtonElement> =
         (e: React.MouseEvent<HTMLButtonElement>) => {
             if (!isAuth) return;

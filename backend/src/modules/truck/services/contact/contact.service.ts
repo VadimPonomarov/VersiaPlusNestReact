@@ -24,9 +24,9 @@ export class ContactService {
     async updateContact(data: ContactEntity): Promise<void> {
         try {
             const isExist =
-                await this.prismaService.contact.findFirst({where: {label: data.label}});
+                await this.prismaService.contact.findFirst({where: {id: data.id}});
             if (!isExist)
-                throw new Error(ResEnum.FAILURE + `There is no contact with label: ${data.label}`)
+                throw new Error(ResEnum.FAILURE + `There is no contact with id: ${data.id}`)
             await this.prismaService.contact.update({where: {id: data.id}, data});
         } catch (e) {
             console.log('updateContact', e.message)
